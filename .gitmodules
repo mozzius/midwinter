@@ -1,0 +1,3 @@
+[submodule "midwinter-app"]
+	path = midwinter-app
+	url = ""
