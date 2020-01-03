@@ -5,7 +5,7 @@
   "scripts": {
     "start": "nodemon midwinter-api --ignore 'midwinter-app/'",
     "dev": "cd midwinter-app/ && react-scripts start",
-    "build": "cd midwinter-app/ && yarn install && yarn run build"
+    "build": "cd midwinter-app/ && yarn && yarn build"
   },
   "author": "Mozzius",
   "license": "MIT",
