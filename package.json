@@ -2,6 +2,9 @@
   "name": "midwinter-api",
   "version": "0.1.0",
   "description": "Midwinter",
+  "engines": {
+    "node": "10.x"
+  },
   "scripts": {
     "start": "nodemon midwinter-api --ignore 'midwinter-app/'",
     "dev": "cd midwinter-app/ && react-scripts start",

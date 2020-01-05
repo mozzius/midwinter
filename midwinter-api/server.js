@@ -88,15 +88,26 @@ app.post('/signup', async (req, res) => {
 // Error handling 
 app.use((err, req, res, next) => {
     if (err.name === 'UnauthorizedError') {
-        res.status(401).send(err)
+        res.status(401).json({ success: false, message: err })
     }
     else {
         next(err)
     }
 })
 
-app.get('/api', jwtMW, (req, res) => {
-    res.status(200).json({ message: 'Hello World' })
+app.get('/api/servers/get', jwtMW, async (req, res) => {
+    try {
+        // TODO: only get servers a user is a member of
+        const { rows } = await makeQuery(SQL`SELECT * FROM Servers`)
+
+        res.status(200).json({
+            success: true,
+            servers: rows
+        })
+    } catch (err) {
+        console.error(err)
+        res.sendStatus(500)
+    }
 })
 
 // All remaining requests return the React app, so it can handle routing.
