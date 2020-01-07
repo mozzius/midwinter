@@ -6,10 +6,9 @@
     "node": "12.x"
   },
   "scripts": {
-    "start": "nodemon midwinter-api --ignore 'midwinter-app'",
-    "dev": "cd midwinter-app && react-scripts start",
-    "build": "cd midwinter-app && yarn && yarn build",
-    "heroku-postbuild": "npm run build"
+    "start": "node midwinter-api",
+    "dev": "concurrently \"nodemon --ignore 'midwinter-app/*'\" \"cd midwinter-app && yarn start\"",
+    "build": "cd midwinter-app && yarn && yarn build"
   },
   "author": "Mozzius",
   "license": "MIT",
@@ -24,7 +23,7 @@
     "sql-template-strings": "^2.2.2"
   },
   "devDependencies": {
-    "react-scripts": "^3.3.0"
+    "concurrently": "^5.0.2"
   },
   "cacheDirectories": [
     "node_modules",
