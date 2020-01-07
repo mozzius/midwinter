@@ -9,6 +9,9 @@ const { makeQuery } = require('./db')
 const { hash } = require('./utils')
 const { secret } = require('./config')
 
+// jwt expiry
+const EXPIRY = 86400
+
 const app = express()
 
 // See the react auth blog in which cors is required for access
@@ -28,6 +31,17 @@ const jwtMW = exjwt({ secret })
 // use react app
 app.use(express.static(path.resolve(__dirname, '../midwinter-app/build')))
 
+// Error handling 
+app.use((err, req, res, next) => {
+    if (err.name === 'UnauthorizedError') {
+        res.status(401).json({ success: false, message: err })
+    }
+    else {
+        next(err)
+    }
+})
+
+
 app.post('/login', async (req, res) => {
     //if (!req.accepts('application/json')) res.status(406).send({ message: '406 Not Acceptable' })
 
@@ -43,7 +57,8 @@ app.post('/login', async (req, res) => {
                     id,
                     username,
                     email,
-                    jwt: jwt.sign({ id }, secret, { expiresIn: 60 * 60 }),
+                    expiresIn: EXPIRY,
+                    jwt: jwt.sign({ id }, secret, { expiresIn: EXPIRY }),
                 }
             })
         } else {
@@ -51,7 +66,7 @@ app.post('/login', async (req, res) => {
         }
     } catch (err) {
         console.error(err)
-        res.sendStatus(500)
+        res.status(500).json({ success: false, message: err })
     }
 })
 
@@ -74,7 +89,8 @@ app.post('/signup', async (req, res) => {
                     id,
                     username,
                     email,
-                    jwt: jwt.sign({ id }, secret, { expiresIn: 60 * 60 }),
+                    expiresIn: EXPIRY,
+                    jwt: jwt.sign({ id }, secret, { expiresIn: EXPIRY }),
                 }
             })
         }
@@ -85,13 +101,35 @@ app.post('/signup', async (req, res) => {
 
 })
 
-// Error handling 
-app.use((err, req, res, next) => {
-    if (err.name === 'UnauthorizedError') {
-        res.status(401).json({ success: false, message: err })
-    }
-    else {
-        next(err)
+app.post('/api/search', jwtMW, async (req, res) => {
+    try {
+        const { search, user } = req.body
+
+        const { rows } = await makeQuery(SQL`
+        SELECT * FROM (
+            SELECT 
+                c.id AS id,
+                c.title AS title,
+                c.private AS private,
+                c.read_only AS read_only,
+                c.created_by AS created_by,
+                c.created_on AS created_on,
+                JSONB_AGG(JSONB_BUILD_OBJECT('id', u.id, 'username', u.username)) AS users
+            FROM channels as c
+            INNER JOIN channel_member as m
+            ON c.id = m.channel_id
+            INNER JOIN users AS u ON u.id = m.user_id
+            GROUP BY c.id)
+        AS sub
+        WHERE users @> ${`[{"username":"${search}"}]`} AND users @> ${`[{"id":"${user}"}]`}`)
+
+        res.status(200).json({
+            success: true,
+            results: rows
+        })
+    } catch (err) {
+        console.error(err)
+        res.status(500).json({ success: false, message: err })
     }
 })
 
@@ -99,14 +137,46 @@ app.get('/api/servers/get', jwtMW, async (req, res) => {
     try {
         // TODO: only get servers a user is a member of
         const { rows } = await makeQuery(SQL`SELECT * FROM Servers`)
-
         res.status(200).json({
             success: true,
             servers: rows
         })
     } catch (err) {
         console.error(err)
-        res.sendStatus(500)
+        res.status(500).json({ success: false, message: err })
+    }
+})
+
+
+app.post('/api/channels/get', jwtMW, async (req, res) => {
+    try {
+        const { user } = req.body
+
+        const { rows } = await makeQuery(SQL`
+        SELECT * FROM (
+            SELECT 
+                c.id AS id,
+                c.title AS title,
+                c.private AS private,
+                c.read_only AS read_only,
+                c.created_by AS created_by,
+                c.created_on AS created_on,
+                JSONB_AGG(JSONB_BUILD_OBJECT('id', u.id, 'username', u.username)) AS users
+            FROM channels as c
+            INNER JOIN channel_member as m
+            ON c.id = m.channel_id
+            INNER JOIN users AS u ON u.id = m.user_id
+            GROUP BY c.id)
+        AS sub
+        WHERE users @> ${`[{"id":"${user}"}]`}`)
+
+        res.status(200).json({
+            success: true,
+            results: rows
+        })
+    } catch (err) {
+        console.error(err)
+        res.status(500).json({ success: false, message: err })
     }
 })
 
@@ -114,8 +184,5 @@ app.get('/api/servers/get', jwtMW, async (req, res) => {
 app.get('*', (req, res) => {
     res.sendFile(path.resolve(__dirname, '../midwinter-app/build', 'index.html'))
 })
-
-// example SQL
-// SELECT m.id, u.username, m.message, m.created_on FROM Messages as m LEFT JOIN Users as u ON m.user_id = u.id
 
 module.exports = { app }
