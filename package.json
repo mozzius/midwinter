@@ -20,8 +20,10 @@
     "jsonwebtoken": "^8.5.1",
     "path": "^0.12.7",
     "pg": "^7.17.0",
-    "react-scripts": "^3.3.0",
     "sql-template-strings": "^2.2.2"
+  },
+  "devDependencies": {
+    "react-scripts": "^3.3.0"
   },
   "cacheDirectories": [
     "node_modules",
