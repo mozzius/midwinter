@@ -31,17 +31,6 @@ const jwtMW = exjwt({ secret })
 // use react app
 app.use(express.static(path.resolve(__dirname, '../midwinter-app/build')))
 
-// Error handling 
-app.use((err, req, res, next) => {
-    if (err.name === 'UnauthorizedError') {
-        res.status(401).json({ success: false, message: err })
-    }
-    else {
-        next(err)
-    }
-})
-
-
 app.post('/login', async (req, res) => {
     //if (!req.accepts('application/json')) res.status(406).send({ message: '406 Not Acceptable' })
 
@@ -101,9 +90,26 @@ app.post('/signup', async (req, res) => {
 
 })
 
+app.get('/api/servers/get', jwtMW, async (req, res) => {
+    try {
+        // we know JWT is valid so just dive in
+        const { id: user } = jwt.decode(req.headers.authorization.split(' ')[1])
+
+        const { rows } = await makeQuery(SQL`SELECT s.id, s.name FROM servers AS s INNER JOIN server_members as m ON s.id = m.server_id WHERE user_id = ${user}`)
+        res.status(200).json({
+            success: true,
+            servers: rows
+        })
+    } catch (err) {
+        console.error(err)
+        res.status(500).json({ success: false, message: err })
+    }
+})
+
 app.post('/api/search', jwtMW, async (req, res) => {
     try {
-        const { search, user } = req.body
+        const { id: user } = jwt.decode(req.headers.authorization.split(' ')[1])
+        const { search } = req.body
 
         const { rows } = await makeQuery(SQL`
         SELECT * FROM (
@@ -116,7 +122,7 @@ app.post('/api/search', jwtMW, async (req, res) => {
                 c.created_on AS created_on,
                 JSONB_AGG(JSONB_BUILD_OBJECT('id', u.id, 'username', u.username)) AS users
             FROM channels as c
-            INNER JOIN channel_member as m
+            INNER JOIN channel_members as m
             ON c.id = m.channel_id
             INNER JOIN users AS u ON u.id = m.user_id
             GROUP BY c.id)
@@ -133,24 +139,9 @@ app.post('/api/search', jwtMW, async (req, res) => {
     }
 })
 
-app.get('/api/servers/get', jwtMW, async (req, res) => {
+app.get('/api/channels/get', jwtMW, async (req, res) => {
     try {
-        // TODO: only get servers a user is a member of
-        const { rows } = await makeQuery(SQL`SELECT * FROM Servers`)
-        res.status(200).json({
-            success: true,
-            servers: rows
-        })
-    } catch (err) {
-        console.error(err)
-        res.status(500).json({ success: false, message: err })
-    }
-})
-
-
-app.post('/api/channels/get', jwtMW, async (req, res) => {
-    try {
-        const { user } = req.body
+        const { id: user } = jwt.decode(req.headers.authorization.split(' ')[1])
 
         const { rows } = await makeQuery(SQL`
         SELECT * FROM (
@@ -163,7 +154,7 @@ app.post('/api/channels/get', jwtMW, async (req, res) => {
                 c.created_on AS created_on,
                 JSONB_AGG(JSONB_BUILD_OBJECT('id', u.id, 'username', u.username)) AS users
             FROM channels as c
-            INNER JOIN channel_member as m
+            INNER JOIN channel_members as m
             ON c.id = m.channel_id
             INNER JOIN users AS u ON u.id = m.user_id
             GROUP BY c.id)
@@ -180,9 +171,25 @@ app.post('/api/channels/get', jwtMW, async (req, res) => {
     }
 })
 
+app.get('/api/checkJWT', jwtMW, (req, res) => {
+    res.status(200).json({ success: true })
+})
+
 // All remaining requests return the React app, so it can handle routing.
 app.get('*', (req, res) => {
     res.sendFile(path.resolve(__dirname, '../midwinter-app/build', 'index.html'))
 })
+
+// Error handling 
+app.use((err, req, res, next) => {
+    if (err.name === 'UnauthorizedError') {
+        res.status(401).json({ success: false, message: err.name })
+    }
+    else {
+        next(err)
+    }
+})
+
+
 
 module.exports = { app }
