@@ -4,6 +4,8 @@ const path = require('path')
 const bodyParser = require('body-parser')
 const jwt = require('jsonwebtoken')
 const exjwt = require('express-jwt')
+const http = require('http')
+const socketIo = require('socket.io')
 
 const { makeQuery } = require('./db')
 const { hash } = require('./utils')
@@ -13,6 +15,10 @@ const { secret } = require('./config')
 const EXPIRY = 86400
 
 const app = express()
+
+server = http.Server(app)
+
+io = socketIo(server)
 
 // See the react auth blog in which cors is required for access
 app.use((req, res, next) => {
@@ -36,7 +42,7 @@ app.post('/login', async (req, res) => {
 
     try {
         const { username, password } = req.body
-        const { rowCount, rows } = await makeQuery(SQL`SELECT * FROM Users WHERE username=${username} AND password=${hash(password)} LIMIT 1`)
+        const { rowCount, rows } = await makeQuery(SQL`SELECT * FROM users WHERE username=${username} AND password=${hash(password)} LIMIT 1`)
 
         if (rowCount > 0) {
             const { id, username, email } = rows[0]
@@ -65,12 +71,12 @@ app.post('/signup', async (req, res) => {
     try {
         const { username, email, password } = req.body
 
-        const exists = await makeQuery(SQL`SELECT EXISTS (SELECT 1 FROM Users WHERE username=${username} OR email=${email})`)
+        const exists = await makeQuery(SQL`SELECT EXISTS (SELECT 1 FROM users WHERE username=${username} OR email=${email})`)
 
         if (exists.rows[0].exists) {
             res.status(200).json({ success: false, message: 'Username or email already taken' })
         } else {
-            const val = await makeQuery(SQL`INSERT INTO Users (username, email, password) VALUES (${username}, ${email}, ${hash(password)}) RETURNING id`)
+            const val = await makeQuery(SQL`INSERT INTO users (username, email, password) VALUES (${username}, ${email}, ${hash(password)}) RETURNING id`)
             id = val.rows[0].id
             res.status(200).json({
                 success: true,
@@ -127,7 +133,8 @@ app.post('/api/search', jwtMW, async (req, res) => {
             INNER JOIN users AS u ON u.id = m.user_id
             GROUP BY c.id)
         AS sub
-        WHERE users @> ${`[{"username":"${search}"}]`} AND users @> ${`[{"id":"${user}"}]`}`)
+        WHERE users @> ${`[{"username":"${search}"}]`} AND users @> ${`[{"id":"${user}"}]`}
+        `)
 
         res.status(200).json({
             success: true,
@@ -159,11 +166,35 @@ app.get('/api/channels/get', jwtMW, async (req, res) => {
             INNER JOIN users AS u ON u.id = m.user_id
             GROUP BY c.id)
         AS sub
-        WHERE users @> ${`[{"id":"${user}"}]`}`)
+        WHERE users @> ${`[{"id":"${user}"}]`}
+        `)
 
         res.status(200).json({
             success: true,
             results: rows
+        })
+    } catch (err) {
+        console.error(err)
+        res.status(500).json({ success: false, message: err })
+    }
+})
+
+app.post('/api/messages/get', jwtMW, async (req, res) => {
+    try {
+        //const { id: user } = jwt.decode(req.headers.authorization.split(' ')[1])
+
+        const { channel, offset } = req.body
+
+        const { rows } = await makeQuery(SQL`
+        SELECT * FROM messages
+        WHERE channel_id = ${channel}
+        LIMIT 20
+        OFFSET ${offset * 20}
+        `)
+
+        res.status(200).json({
+            success: true,
+            messages: rows
         })
     } catch (err) {
         console.error(err)
@@ -188,6 +219,22 @@ app.use((err, req, res, next) => {
     else {
         next(err)
     }
+})
+
+io.on('connect', socket => {
+    socket.emit('hello', 'bonjour mon amis')
+
+    socket.on('room', room => {
+        socket.join(room)
+    })
+
+    socket.on('message', data => {
+        const { room, message } = data
+
+        // add message to db
+
+        socket.to(room).emit('message', message)
+    })
 })
 
 
