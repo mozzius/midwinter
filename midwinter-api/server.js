@@ -222,7 +222,8 @@ app.use((err, req, res, next) => {
 })
 
 io.on('connect', socket => {
-    socket.emit('hello', 'bonjour mon amis')
+    // for testing
+    socket.emit('message', {id: 'uh dunno', user_id: '3fd4a8b1-c30c-4f8b-87d7-e8ae4023365d', message: 'I was sent from a socket!'})
 
     socket.on('room', room => {
         socket.join(room)
