@@ -1,16 +1,22 @@
 import { useState, useEffect } from 'react'
 
-const getJWT = () => {
-    return JSON.parse(window.localStorage.getItem('user')).jwt
-}
 
 export const useFetch = (url, method, message) => {
     const [state, setState] = useState({ type: 'loading', data: null })
-    const jwt = getJWT()
+
 
     useEffect(() => {
 
         const getMessages = async () => {
+            // get jwt
+            let jwt
+            const user = window.localStorage.getItem('user')
+            if (user && JSON.parse(user).loggedIn) {
+                jwt = JSON.parse(user).jwt
+            } else {
+                jwt = null
+            }
+
             if (method === 'POST' && !message) {
                 setState({ type: 'error', data: 'no message' })
             } else if (!jwt) {
@@ -46,7 +52,7 @@ export const useFetch = (url, method, message) => {
         }
 
         getMessages()
-    }, [url, method, message, jwt])
+    }, [url, method, message])
 
     return state
 }
