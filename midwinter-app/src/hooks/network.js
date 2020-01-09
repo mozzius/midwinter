@@ -60,21 +60,21 @@ export const useFetch = (url, method, message) => {
 // wrappers
 
 export const useMessages = (channel, offset) => {
-    return useFetch('http://localhost:5000/api/messages/get', 'POST', JSON.stringify({ channel, offset }))
+    return useFetch('/api/messages/get', 'POST', JSON.stringify({ channel, offset }))
 }
 
 export const useServers = () => {
-    return useFetch('http://localhost:5000/api/servers/get', 'GET')
+    return useFetch('/api/servers/get', 'GET')
 }
 
 export const useSearch = (search) => {
-    return useFetch('http://localhost:5000/api/search', 'POST', JSON.stringify({ search }))
+    return useFetch('/api/search', 'POST', JSON.stringify({ search }))
 }
 
 export const useChannels = user => {
-    return useFetch('http://localhost:5000/api/channels/get', 'GET')
+    return useFetch('/api/channels/get', 'GET')
 }
 
 export const useCheck = () => {
-    return useFetch('http://localhost:5000/api/checkJWT', 'GET')
+    return useFetch('/api/checkJWT', 'GET')
 }

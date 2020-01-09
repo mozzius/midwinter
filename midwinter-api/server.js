@@ -34,9 +34,6 @@ app.use(bodyParser.urlencoded({ extended: true }))
 // express-jwt middleware
 const jwtMW = exjwt({ secret })
 
-// use react app
-app.use(express.static(path.resolve(__dirname, '../midwinter-app/build')))
-
 app.post('/login', async (req, res) => {
     //if (!req.accepts('application/json')) res.status(406).send({ message: '406 Not Acceptable' })
 
@@ -206,10 +203,15 @@ app.get('/api/checkJWT', jwtMW, (req, res) => {
     res.status(200).json({ success: true })
 })
 
-// All remaining requests return the React app, so it can handle routing.
-app.get('*', (req, res) => {
-    res.sendFile(path.resolve(__dirname, '../midwinter-app/build', 'index.html'))
-})
+if (process.env.NODE_ENV === 'production') {
+    // use react app
+    app.use(express.static(path.resolve(__dirname, '../midwinter-app/build')))
+
+    // All remaining requests return the React app, so it can handle routing.
+    app.get('*', (req, res) => {
+        res.sendFile(path.resolve(__dirname, '../midwinter-app/build', 'index.html'))
+    })
+}
 
 // Error handling 
 app.use((err, req, res, next) => {
@@ -234,11 +236,9 @@ io.on('connect', socket => {
 
         makeQuery(SQL`INSERT INTO messages (user_id, channel_id, message) VALUES (${user_id}, ${channel_id}, ${message}) RETURNING *`)
             .then(res => {
-                io.in(channel_id).emit('message', res.rows[0] )
+                io.in(channel_id).emit('message', res.rows[0])
             })
     })
 })
-
-
 
 module.exports = { app }
