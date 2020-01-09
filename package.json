@@ -8,8 +8,7 @@
   "scripts": {
     "start": "node midwinter-api",
     "dev": "concurrently \"nodemon --ignore 'midwinter-app/*'\" \"cd midwinter-app && yarn start\"",
-    "build": "cd midwinter-app && yarn",
-    "postinstall": "cd midwinter-app && yarn build"
+    "build": "cd midwinter-app && yarn && yarn build"
   },
   "author": "Mozzius",
   "license": "MIT",
