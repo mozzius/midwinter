@@ -189,7 +189,7 @@ app.post('/api/messages/get', jwtMW, async (req, res) => {
         SELECT * FROM messages
         WHERE channel_id = ${channel}
         LIMIT 20
-        OFFSET ${offset * 20}
+        OFFSET ${offset}
         `)
 
         res.status(200).json({
@@ -222,19 +222,20 @@ app.use((err, req, res, next) => {
 })
 
 io.on('connect', socket => {
-    // for testing
-    socket.emit('message', {id: 'uh dunno', user_id: '3fd4a8b1-c30c-4f8b-87d7-e8ae4023365d', message: 'I was sent from a socket!'})
-
-    socket.on('room', room => {
-        socket.join(room)
+    // join rooms
+    socket.on('join-rooms', rooms => {
+        rooms.forEach(room => {
+            socket.join(room)
+        })
     })
 
-    socket.on('message', data => {
-        const { room, message } = data
+    socket.on('message', msg => {
+        const { user_id, channel_id, message } = msg
 
-        // add message to db
-
-        socket.to(room).emit('message', message)
+        makeQuery(SQL`INSERT INTO messages (user_id, channel_id, message) VALUES (${user_id}, ${channel_id}, ${message}) RETURNING *`)
+            .then(res => {
+                io.in(channel_id).emit('message', res.rows[0] )
+            })
     })
 })
 
