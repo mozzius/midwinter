@@ -1,0 +1,102 @@
+.sidebar {
+    height: 100%;
+    width: 300px;
+    background-color: var(--main-color);
+    border-right: 1px solid var(--main-grey);
+    color: var(--main-grey);
+    flex-grow: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+.title {
+    padding: 15px;
+    font-family: "Major Mono Display", monospace;
+    height: 50px;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.title > h2 {
+    font-weight: lighter;
+}
+
+.content {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.content > p {
+    text-align: center;
+    margin-top: 30px;
+}
+
+.user {
+    padding: 15px;
+    display: flex;
+    flex-direction: row;
+}
+
+.profilePic {
+    border-radius: 5px;
+    background-color: white;
+    height: 40px;
+    width: 40px;
+}
+
+.info {
+    margin-left: 10px;
+}
+
+.info > p {
+    margin: 0;
+}
+
+.info:nth-child(2) {
+    color: var(--light-grey);
+    font-size: 0.9em;
+}
+
+.dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 3px;
+    background-color: #39bb39;
+    display: inline-block;
+    margin-bottom: 2px;
+}
+
+.separator {
+    font-size: 12px;
+    text-transform: uppercase;
+    font-weight: bold;
+    margin: 15px 0 5px 15px;
+}
+
+.channel {
+    width: 100%;
+    padding: 10px 15px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.channel:hover {
+    background-color: #C1CACE;
+}
+
+.conversation {
+    text-align: center;
+    margin: 10px 15px;
+    padding: 5px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 18px;
+    transition: background-color 0.3s ease;
+}
+
+.conversation:hover {
+    background-color: white;
+}

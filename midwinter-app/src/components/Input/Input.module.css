@@ -1,0 +1,32 @@
+.container {
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    padding: 15px;
+    border-top: 1px solid var(--main-grey);
+    flex-shrink: 0;
+}
+
+.text {
+    display: flex;
+    flex-direction: row;
+    flex-grow: 1;
+    align-items: stretch;
+    height: 40px;
+    background-color: var(--light-grey);
+    border-radius: 5px;
+    overflow: hidden;
+}
+
+.input {
+    border: none;
+    background-color: var(--light-grey);
+    flex-grow: 1;
+    padding: 5px 15px;
+}
+
+.submit {
+    border: none;
+    background-color: var(--main-color);
+    padding: 0 25px;
+}

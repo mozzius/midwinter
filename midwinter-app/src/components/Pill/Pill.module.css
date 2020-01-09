@@ -1,0 +1,16 @@
+.pill {
+    background-color: var(--main-color);
+    font-size: 11px;
+    border-radius: 5px;
+    margin-left: 10px;
+    padding: 1px 10px 2px;
+    cursor: pointer;
+}
+
+.pill > a {
+    text-decoration: none;
+}
+
+.grow {
+    flex-grow: 1;
+}
