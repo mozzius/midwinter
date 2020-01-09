@@ -6,7 +6,7 @@ const useChat = (channels) => {
     const socketRef = useRef()
 
     useEffect(() => {
-        socketRef.current = io.connect('http://localhost:5000')
+        socketRef.current = io.connect()
 
         socketRef.current.emit('join-rooms', JSON.parse(channels))
 

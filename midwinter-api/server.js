@@ -224,6 +224,7 @@ app.use((err, req, res, next) => {
 })
 
 io.on('connect', socket => {
+
     // join rooms
     socket.on('join-rooms', rooms => {
         rooms.forEach(room => {

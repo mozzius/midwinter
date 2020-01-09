@@ -6,7 +6,7 @@ import './Signup.module.css'
 
 const Signup = ({ setUser }) => {
     const [error, setError] = useState({ exists: false })
-    const [form, setForm] = useState({ username: 'Mozzius', password: 'test', email: 'mozzius@protonmail.com' })
+    const [form, setForm] = useState({ username: '', password: '', email: '' })
     const user = useContext(UserContext)
 
     const signup = async () => {

@@ -24,7 +24,8 @@
     "sql-template-strings": "^2.2.2"
   },
   "devDependencies": {
-    "concurrently": "^5.0.2"
+    "concurrently": "^5.0.2",
+    "dotenv": "^8.2.0"
   },
   "cacheDirectories": [
     "node_modules",

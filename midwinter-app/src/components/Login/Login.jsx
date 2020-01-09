@@ -6,7 +6,7 @@ import './Login.module.css'
 
 const Login = ({ setUser }) => {
     const [error, setError] = useState({ exists: false })
-    const [form, setForm] = useState({ username: 'Mozzius', password: 'test' })
+    const [form, setForm] = useState({ username: '', password: '' })
     const user = useContext(UserContext)
 
     const login = async () => {
