@@ -43,3 +43,7 @@
 .text {
     margin: 0;
 }
+
+.noMsg {
+    text-align: center;
+}

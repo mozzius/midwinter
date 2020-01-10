@@ -185,9 +185,9 @@ app.post('/api/messages/get', jwtMW, async (req, res) => {
         const { rows } = await makeQuery(SQL`
         SELECT * FROM messages
         WHERE channel_id = ${channel}
+        ORDER BY created_on ASC
         LIMIT 20
         OFFSET ${offset}
-        ORDER BY created_on ASC
         `)
 
         res.status(200).json({

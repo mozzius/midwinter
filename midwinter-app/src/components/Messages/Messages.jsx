@@ -27,6 +27,8 @@ const Messages = ({ chat, socket }) => {
     const [prevMessages, setPrevMessages] = useState([])
     //const [offset, setOffset] = useState(0)
     const { type, data } = useMessages(chat.id, 0)
+    const [forceScroll, setForceScroll] = useState(true)
+    const [noPrevMessages, setNoPrevMessages] = useState(false)
 
     // for comparison in useEffect
     // this is dumb 
@@ -39,19 +41,32 @@ const Messages = ({ chat, socket }) => {
         const data = JSON.parse(strData)
         if (type === 'success' && data.success) {
             setPrevMessages(data.messages)
+            if (data.messages.length === 0) {
+                setNoPrevMessages(true)
+            }
         }
     }, [type, strData])
 
     useEffect(() => {
+        // set current channel in localstorage
         if (JSON.parse(strChat)) window.localStorage.setItem('currentChannel', strChat)
     }, [strChat])
+
+    useEffect(() => {
+        // initally the feed is locked to the bottom
+        // allow scrolling when messages has loaded
+        if (allMessages.length !== 0) {
+            setForceScroll(false)
+        }
+    }, [allMessages])
 
     if (!chat) return <p>Select a channel</p>
 
     return (
         <div className={styles.main}>
             <Bar text={chat.title} />
-            <ScrollableFeed className={styles.messages}>
+            <ScrollableFeed forceScroll={forceScroll} className={styles.messages}>
+                {allMessages.length === 0 && noPrevMessages && <p className={styles.noMsg}>No messages in this chat</p>}
                 {allMessages.map(msg => {
                     return (
                         <Message key={msg.id} msg={msg} users={chat.users} />
