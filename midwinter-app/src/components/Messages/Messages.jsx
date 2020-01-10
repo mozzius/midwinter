@@ -65,7 +65,7 @@ const Messages = ({ chat, socket }) => {
     return (
         <div className={styles.main}>
             <Bar text={chat.title} />
-            <ScrollableFeed forceScroll={forceScroll} className={styles.messages}>
+            <ScrollableFeed forceScroll={forceScroll} className={styles.messages} viewableDetectionEpsilon={50}>
                 {allMessages.length === 0 && noPrevMessages && <p className={styles.noMsg}>No messages in this chat</p>}
                 <div className={styles.topPadding} />
                 {allMessages.map(msg => {
