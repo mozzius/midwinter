@@ -21,7 +21,7 @@ const Midwinter = ({ logout }) => {
     const [mode, setMode] = useState('chat')
     const [server, setServer] = useState(JSON.parse(window.localStorage.getItem('server')) || { selected: false, data: null })
     const [chat, setChat] = useState(JSON.parse(window.localStorage.getItem('currentChannel')) || null)
-    const channels = useChannels()
+    const channels = useChannels(server)
     const [rooms, setRooms] = useState([])
     const socket = useChat(JSON.stringify(rooms))
 
@@ -35,6 +35,8 @@ const Midwinter = ({ logout }) => {
     }, [channels.type, strData])
 
     const changeServer = server => {
+        window.localStorage.removeItem('currentChannel')
+        setChat(null)
         setServer({ selected: true, data: server })
         setMode('chat')
     }
@@ -60,7 +62,12 @@ const Midwinter = ({ logout }) => {
             </Route>
             <Route path="/">
                 <div className={styles.main}>
-                    <Sidebar currentChat={chat?.id} setChat={setChat} channels={channels} />
+                    <Sidebar
+                        currentChat={chat?.id}
+                        setChat={setChat}
+                        channels={channels}
+                        server={server}
+                    />
                     <div className={styles.right}>
                         <Bar text={server.data?.name}>
                             <Pill onClick={() => setMode('select server')}>

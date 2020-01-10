@@ -77,12 +77,12 @@ export const useJoinServer = server => {
     return useFetch('/api/servers/join', 'POST', server ? JSON.stringify({ server }) : null)
 }
 
-export const useSearch = (search) => {
-    return useFetch('/api/search', 'POST', JSON.stringify({ search }))
+export const useSearch = (server, search) => {
+    return useFetch('/api/search', 'POST', server.selected ? JSON.stringify({ server: server.data.id, search }) : null)
 }
 
-export const useChannels = () => {
-    return useFetch('/api/channels/get', 'GET')
+export const useChannels = server => {
+    return useFetch('/api/channels/get', 'POST', server.selected ? JSON.stringify({ server: server.data.id }) : null)
 }
 
 export const useCheck = () => {

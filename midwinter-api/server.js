@@ -115,7 +115,7 @@ app.post('/api/servers/join', jwtMW, async (req, res) => {
 
         const { server } = req.body
 
-        const { rowCount, rows } = await makeQuery(SQL`SELECT id, name, code FROM servers WHERE code = ${server}`)
+        const { rowCount, rows } = await makeQuery(SQL`SELECT id, name, code, invite_only FROM servers WHERE code = ${server}`)
         if (rowCount > 0 && rows[0].invite_only === false) {
             await makeQuery(SQL`INSERT INTO server_members (server_id, user_id) VALUES (${rows[0].id}, ${user})`)
             res.status(200).json({ success: true, server: rows[0] })
@@ -131,7 +131,7 @@ app.post('/api/servers/join', jwtMW, async (req, res) => {
 app.post('/api/search', jwtMW, async (req, res) => {
     try {
         const { id: user } = jwt.decode(req.headers.authorization.split(' ')[1])
-        const { search } = req.body
+        const { search, server } = req.body
 
         const { rows } = await makeQuery(SQL`
         SELECT * FROM (
@@ -147,6 +147,7 @@ app.post('/api/search', jwtMW, async (req, res) => {
             INNER JOIN channel_members as m
             ON c.id = m.channel_id
             INNER JOIN users AS u ON u.id = m.user_id
+            WHERE c.server_id = ${server}
             GROUP BY c.id)
         AS sub
         WHERE users @> ${`[{"username":"${search}"}]`} AND users @> ${`[{"id":"${user}"}]`}
@@ -162,9 +163,11 @@ app.post('/api/search', jwtMW, async (req, res) => {
     }
 })
 
-app.get('/api/channels/get', jwtMW, async (req, res) => {
+app.post('/api/channels/get', jwtMW, async (req, res) => {
     try {
         const { id: user } = jwt.decode(req.headers.authorization.split(' ')[1])
+
+        const { server } = req.body
 
         const { rows } = await makeQuery(SQL`
         SELECT * FROM (
@@ -176,10 +179,12 @@ app.get('/api/channels/get', jwtMW, async (req, res) => {
                 c.created_by AS created_by,
                 c.created_on AS created_on,
                 JSONB_AGG(JSONB_BUILD_OBJECT('id', u.id, 'username', u.username)) AS users
-            FROM channels as c
-            INNER JOIN channel_members as m
+            FROM channels AS c
+            INNER JOIN channel_members AS m
             ON c.id = m.channel_id
-            INNER JOIN users AS u ON u.id = m.user_id
+            INNER JOIN users AS u
+            ON u.id = m.user_id
+            WHERE c.server_id = ${server}
             GROUP BY c.id)
         AS sub
         WHERE users @> ${`[{"id":"${user}"}]`}

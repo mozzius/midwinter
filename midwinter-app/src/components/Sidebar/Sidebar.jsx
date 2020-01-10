@@ -35,7 +35,14 @@ const ChannelResults = ({ currentChat, results, setChat }) => {
         case 'loading':
             return <p>Loading...</p>
         case 'success':
-            if (data.results.length === 0) return <p>No channels</p>
+            if (data.results.length === 0) {
+                return (
+                    <>
+                        <p>No channels</p>
+                        <div className={styles.conversation}><b>+</b> New Conversation</div>
+                    </>
+                )
+            }
 
             return (
                 <>
@@ -61,10 +68,10 @@ const ChannelResults = ({ currentChat, results, setChat }) => {
     }
 }
 
-const Sidebar = ({ currentChat, setChat, channels }) => {
+const Sidebar = ({ server, currentChat, setChat, channels }) => {
     const user = useContext(UserContext)
     const [search, setSearch] = useState('')
-    const results = useSearch(search)
+    const results = useSearch(server, search)
 
     return (
         <div className={styles.sidebar}>
