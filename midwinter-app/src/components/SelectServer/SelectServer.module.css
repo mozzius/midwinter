@@ -14,6 +14,63 @@
     flex-direction: column;
 }
 
+.title {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+}
+
+.join {
+    display: flex;
+    flex-direction: row;
+    align-items: stretch;
+}
+
+.join > p {
+    margin: 8px 20px;
+}
+
+.button {
+    border: none;
+    background-color: var(--main-grey);
+    color: white;
+    padding: 0 25px;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.servers {
+    display: flex;
+    flex-direction: column;
+}
+
+.servers > p {
+    text-align: center;
+}
+
 .server {
     cursor: pointer;
+    background-color: var(--light-grey);
+    padding: 10px 20px;
+    border-radius: 5px;
+    margin-bottom: 15px;
+}
+
+.name {
+    font-size: 18px;
+    margin: 0;
+}
+
+p.code {
+    font-size: 12px;
+    margin: 0;
+    color: var(--medium-grey);
+}
+
+p.code>span,
+span.code {
+    letter-spacing: 1px;
+    font-weight: bold;
+    margin-left: 3px;
+    color: var(--main-grey);
 }

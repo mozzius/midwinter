@@ -98,11 +98,30 @@ app.get('/api/servers/get', jwtMW, async (req, res) => {
         // we know JWT is valid so just dive in
         const { id: user } = jwt.decode(req.headers.authorization.split(' ')[1])
 
-        const { rows } = await makeQuery(SQL`SELECT s.id, s.name FROM servers AS s INNER JOIN server_members as m ON s.id = m.server_id WHERE user_id = ${user}`)
+        const { rows } = await makeQuery(SQL`SELECT s.id, s.name, s.code FROM servers AS s INNER JOIN server_members as m ON s.id = m.server_id WHERE m.user_id = ${user}`)
         res.status(200).json({
             success: true,
             servers: rows
         })
+    } catch (err) {
+        console.error(err)
+        res.status(500).json({ success: false, message: err })
+    }
+})
+
+app.post('/api/servers/join', jwtMW, async (req, res) => {
+    try {
+        const { id: user } = jwt.decode(req.headers.authorization.split(' ')[1])
+
+        const { server } = req.body
+
+        const { rowCount, rows } = await makeQuery(SQL`SELECT id, name, code FROM servers WHERE code = ${server}`)
+        if (rowCount > 0 && rows[0].invite_only === false) {
+            await makeQuery(SQL`INSERT INTO server_members (server_id, user_id) VALUES (${rows[0].id}, ${user})`)
+            res.status(200).json({ success: true, server: rows[0] })
+        } else {
+            res.status(200).json({ success: false })
+        }
     } catch (err) {
         console.error(err)
         res.status(500).json({ success: false, message: err })
@@ -183,11 +202,14 @@ app.post('/api/messages/get', jwtMW, async (req, res) => {
         const { channel, offset } = req.body
 
         const { rows } = await makeQuery(SQL`
-        SELECT * FROM messages
-        WHERE channel_id = ${channel}
-        ORDER BY created_on ASC
-        LIMIT 20
-        OFFSET ${offset}
+        SELECT * FROM (
+            SELECT * FROM messages
+            WHERE channel_id = ${channel}
+            ORDER BY created_on DESC
+            LIMIT 20
+            OFFSET ${offset})
+        AS sub
+        ORDER BY sub.created_on ASC        
         `)
 
         res.status(200).json({
@@ -238,9 +260,9 @@ io.on('connect', socket => {
 
         if (message !== '') {
             makeQuery(SQL`INSERT INTO messages (user_id, channel_id, message) VALUES (${user_id}, ${channel_id}, ${message}) RETURNING *`)
-            .then(res => {
-                io.in(channel_id).emit('message', res.rows[0])
-            })
+                .then(res => {
+                    io.in(channel_id).emit('message', res.rows[0])
+                })
         }
     })
 })

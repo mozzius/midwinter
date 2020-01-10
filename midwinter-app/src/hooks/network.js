@@ -5,18 +5,16 @@ export const useFetch = (url, method, message) => {
     const [state, setState] = useState({ type: 'loading', data: null })
 
     // get jwt
-    let jwt
+    let jwt = null
     const user = window.localStorage.getItem('user')
-    if (user && JSON.parse(user).loggedIn) {
+    if (user !== null && JSON.parse(user).loggedIn) {
         jwt = JSON.parse(user).jwt
-    } else {
-        jwt = null
     }
 
     useEffect(() => {
 
         const getMessages = async () => {
-            if (method === 'POST' && !message) {
+            if (method === 'POST' && (!message || message === null)) {
                 setState({ type: 'error', data: 'no message' })
             } else if (!jwt) {
                 setState({ type: 'loading', data: 'jwt not yet available' })
@@ -32,20 +30,29 @@ export const useFetch = (url, method, message) => {
                     })
                     // catch serverside errors
                     if (res.status === 500) {
+                        // often not JSON
                         setState({ type: 'error', data: `${res.status} error` })
-                        // catch JWT errors
                     } else if (res.status === 401) {
-                        const data = await res.json()
-                        if (data.message === 'UnauthorizedError') {
-                            setState({ type: 'JWT invalid', data: `${res.status} error` })
+                        // catch JWT errors
+                        try {
+                            const data = await res.json()
+                            if (data.message === 'UnauthorizedError') {
+                                setState({ type: 'JWT invalid', data: `${res.status} error` })
+                            } else {
+                                throw new Error('Not JWT Error')
+                            }
+                        } catch {
+                            setState({ type: 'error', data: `${res.status} error` })
                         }
                     } else {
+                        // success!
                         const data = await res.json()
                         setState({ type: 'success', data })
                     }
                 } catch (e) {
+                    console.error('Fetch error')
                     console.error(e)
-                    setState({ type: 'error', data: e })
+                    setState({ type: 'error', data: e.message })
                 }
             }
         }
@@ -66,11 +73,15 @@ export const useServers = () => {
     return useFetch('/api/servers/get', 'GET')
 }
 
+export const useJoinServer = server => {
+    return useFetch('/api/servers/join', 'POST', server ? JSON.stringify({ server }) : null)
+}
+
 export const useSearch = (search) => {
     return useFetch('/api/search', 'POST', JSON.stringify({ search }))
 }
 
-export const useChannels = user => {
+export const useChannels = () => {
     return useFetch('/api/channels/get', 'GET')
 }
 

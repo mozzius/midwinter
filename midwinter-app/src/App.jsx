@@ -17,7 +17,11 @@ const App = () => {
     const [user, setUser] = useState({ loggedIn: false })
     const { type: check } = useCheck()
 
-    const logout = () => setUser({ loggedIn: false })
+    const logout = () => {
+        window.localStorage.removeItem('server')
+        window.localStorage.removeItem('currentChannel')
+        setUser({ loggedIn: false })
+    }
 
     // runs once
     useEffect(() => {
@@ -28,8 +32,9 @@ const App = () => {
         } else {
             localStorage.removeItem('user')
         }
-    }, [setUser])
+    }, [])
 
+    // save user on change
     useEffect(() => {
         window.localStorage.setItem('user', JSON.stringify(user))
     }, [user])

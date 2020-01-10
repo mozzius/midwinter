@@ -1,16 +1,14 @@
-import React, { useState, useContext } from 'react'
+import React, { useState } from 'react'
 
 import styles from './Input.module.css'
-import UserContext from '../../contexts/user'
 
-const Input = ({ channel, sendMessage }) => {
-    const user = useContext(UserContext)
+const Input = ({ onSubmit, placeholder, button, grey, monospace, uppercase }) => {
     const [value, setValue] = useState('')
 
     const submit = evt => {
         evt.preventDefault()
         if (value !== '') {
-            sendMessage({ message: value, user_id: user.id, channel_id: channel })
+            onSubmit(value)
             setValue('')
         }
     }
@@ -20,15 +18,16 @@ const Input = ({ channel, sendMessage }) => {
             <form className={styles.text} onSubmit={submit}>
                 <input
                     type="text"
-                    placeholder="Say something..."
+                    placeholder={placeholder || "Say something..."}
                     className={styles.input}
                     value={value}
-                    onChange={evt => setValue(evt.target.value)}
+                    style={monospace && { fontFamily: "Consolas, monospace" }}
+                    onChange={evt => setValue(uppercase ? evt.target.value.toUpperCase() : evt.target.value)}
                 />
                 <input
                     type="submit"
-                    value="Send"
-                    className={styles.submit}
+                    value={button || "Send"}
+                    className={grey ? styles.submitGrey : styles.submit}
                 />
             </form>
         </div>

@@ -1,10 +1,11 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useContext } from 'react'
 import ScrollableFeed from 'react-scrollable-feed'
 
 import { useMessages } from '../../hooks/network'
 import Input from '../Input'
 import Bar from '../Bar'
 import styles from './Messages.module.css'
+import UserContext from '../../contexts/user'
 
 const Message = ({ msg, users }) => {
     const { user_id, message } = msg
@@ -23,6 +24,7 @@ const Message = ({ msg, users }) => {
 }
 
 const Messages = ({ chat, socket }) => {
+    const user = useContext(UserContext)
     const { messages, sendMessage } = socket
     const [prevMessages, setPrevMessages] = useState([])
     //const [offset, setOffset] = useState(0)
@@ -60,6 +62,14 @@ const Messages = ({ chat, socket }) => {
         }
     }, [allMessages])
 
+    const onSubmit = value => {
+        sendMessage({
+            user_id: user.id,
+            channel_id: chat.id,
+            message: value
+        })
+    }
+
     if (!chat) return <p>Select a channel</p>
 
     return (
@@ -74,7 +84,9 @@ const Messages = ({ chat, socket }) => {
                     )
                 })}
             </ScrollableFeed>
-            <Input sendMessage={sendMessage} channel={chat.id} />
+            <div className={styles.input}>
+                <Input onSubmit={onSubmit} />
+            </div>
         </div>
     )
 }
