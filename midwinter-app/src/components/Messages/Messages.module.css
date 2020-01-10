@@ -25,6 +25,7 @@
     background-color: var(--main-color);
     height: 40px;
     width: 40px;
+    flex-shrink: 0;
 }
 
 .content {

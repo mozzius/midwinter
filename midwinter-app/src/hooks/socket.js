@@ -22,7 +22,7 @@ const useChat = (channels) => {
     const sendMessage = (message) => {
         //const timer = setTimeout(() => alert('Message timed out'), 5000)
 
-        if (socketRef.current) {
+        if (socketRef.current && message !== '') {
             socketRef.current.emit('message', message)
 
             // TODO: get timeout working

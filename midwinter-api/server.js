@@ -187,6 +187,7 @@ app.post('/api/messages/get', jwtMW, async (req, res) => {
         WHERE channel_id = ${channel}
         LIMIT 20
         OFFSET ${offset}
+        ORDER BY created_on ASC
         `)
 
         res.status(200).json({
@@ -235,10 +236,12 @@ io.on('connect', socket => {
     socket.on('message', msg => {
         const { user_id, channel_id, message } = msg
 
-        makeQuery(SQL`INSERT INTO messages (user_id, channel_id, message) VALUES (${user_id}, ${channel_id}, ${message}) RETURNING *`)
+        if (message !== '') {
+            makeQuery(SQL`INSERT INTO messages (user_id, channel_id, message) VALUES (${user_id}, ${channel_id}, ${message}) RETURNING *`)
             .then(res => {
                 io.in(channel_id).emit('message', res.rows[0])
             })
+        }
     })
 })
 

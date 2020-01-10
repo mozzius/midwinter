@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react'
+import ScrollableFeed from 'react-scrollable-feed'
 
 import { useMessages } from '../../hooks/network'
 import Input from '../Input'
@@ -50,11 +51,13 @@ const Messages = ({ chat, socket }) => {
     return (
         <div className={styles.main}>
             <Bar text={chat.title} />
-            <div className={styles.messages}>
+            <ScrollableFeed className={styles.messages}>
                 {allMessages.map(msg => {
-                    return <Message key={msg.id} msg={msg} users={chat.users} />
+                    return (
+                        <Message key={msg.id} msg={msg} users={chat.users} />
+                    )
                 })}
-            </div>
+            </ScrollableFeed>
             <Input sendMessage={sendMessage} channel={chat.id} />
         </div>
     )

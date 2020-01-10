@@ -9,8 +9,10 @@ const Input = ({ channel, sendMessage }) => {
 
     const submit = evt => {
         evt.preventDefault()
-        sendMessage({ message: value, user_id: user.id, channel_id: channel })
-        setValue('')
+        if (value !== '') {
+            sendMessage({ message: value, user_id: user.id, channel_id: channel })
+            setValue('')
+        }
     }
 
     return (
