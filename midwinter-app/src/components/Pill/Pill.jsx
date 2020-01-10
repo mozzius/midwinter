@@ -8,7 +8,7 @@ const Pill = ({ children, white, right, onClick }) => {
             {right && <div className={styles.grow} />}
             <div
                 className={styles.pill}
-                style={white && { backgroundColor: 'white' }}
+                style={white && { backgroundColor: 'var(--light-grey)' }}
                 onClick={onClick}
             >
                 {children}

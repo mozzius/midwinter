@@ -18,6 +18,7 @@ const Input = ({ onSubmit, placeholder, button, grey, monospace, uppercase }) =>
             <form className={styles.text} onSubmit={submit}>
                 <input
                     type="text"
+                    ref={input => input && input.focus()}
                     placeholder={placeholder || "Say something..."}
                     className={styles.input}
                     value={value}

@@ -50,8 +50,6 @@ const Midwinter = ({ logout }) => {
         }
     }, [server])
 
-    if (mode === 'select server') return <SelectServer setServer={changeServer} />
-
     return (
         <Switch>
             <Route path={['/login', '/signup']}>
@@ -61,25 +59,27 @@ const Midwinter = ({ logout }) => {
                 <Logout logout={logout} />
             </Route>
             <Route path="/">
-                <div className={styles.main}>
-                    <Sidebar
-                        currentChat={chat?.id}
-                        setChat={setChat}
-                        channels={channels}
-                        server={server}
-                    />
-                    <div className={styles.right}>
-                        <Bar text={server.data?.name}>
-                            <Pill onClick={() => setMode('select server')}>
-                                Change
+                {mode === 'select server' ? <SelectServer setServer={changeServer} /> : (
+                    <div className={styles.main}>
+                        <Sidebar
+                            currentChat={chat?.id}
+                            setChat={setChat}
+                            channels={channels}
+                            server={server}
+                        />
+                        <div className={styles.right}>
+                            <Bar text={server.data?.name}>
+                                <Pill onClick={() => setMode('select server')}>
+                                    Change
                             </Pill>
-                            <Pill right>
-                                <Link to="/logout">Logout</Link>
-                            </Pill>
-                        </Bar>
-                        {chat ? <Messages chat={chat} socket={socket} /> : <p>Select a channel</p>}
+                                <Pill right>
+                                    <Link to="/logout">Logout</Link>
+                                </Pill>
+                            </Bar>
+                            {chat ? <Messages chat={chat} socket={socket} /> : <p>Select a channel</p>}
+                        </div>
                     </div>
-                </div>
+                )}
             </Route>
         </Switch>
     )
