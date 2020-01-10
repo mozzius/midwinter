@@ -28,7 +28,7 @@ const SearchResults = ({ results, setChat }) => {
     }
 }
 
-const ChannelResults = ({ results, setChat }) => {
+const ChannelResults = ({ currentChat, results, setChat }) => {
     const user = useContext(UserContext)
     const { type, data } = results
     switch (type) {
@@ -42,7 +42,16 @@ const ChannelResults = ({ results, setChat }) => {
                     <div className={styles.separator}>Channels</div>
                     {data.results.map(channel => {
                         if (!channel.title) channel.title = channel.users.filter(x => x.id !== user.id).map(x => x.username).join(', ')
-                        return <div className={styles.channel} key={channel.id} onClick={() => setChat(channel)}>{channel.title}</div>
+                        return (
+                            <div
+                                className={styles.channel}
+                                style={(channel.id === currentChat) ? { fontWeight: 'bold' } : null}
+                                key={channel.id}
+                                onClick={() => setChat(channel)}
+                            >
+                                {channel.title}
+                            </div>
+                        )
                     })}
                     <div className={styles.conversation}><b>+</b> New Conversation</div>
                 </>
@@ -52,7 +61,7 @@ const ChannelResults = ({ results, setChat }) => {
     }
 }
 
-const Sidebar = ({ setChat, channels }) => {
+const Sidebar = ({ currentChat, setChat, channels }) => {
     const user = useContext(UserContext)
     const [search, setSearch] = useState('')
     const results = useSearch(search)
@@ -65,7 +74,7 @@ const Sidebar = ({ setChat, channels }) => {
             </div>
             <Search onChange={setSearch} />
             <div className={styles.content}>
-                {search ? <SearchResults results={results} setChat={setChat} /> : <ChannelResults results={channels} setChat={setChat} />}
+                {search ? <SearchResults results={results} setChat={setChat} /> : <ChannelResults currentChat={currentChat} results={channels} setChat={setChat} />}
             </div>
             <div className={styles.user}>
                 <div className={styles.profilePic} />

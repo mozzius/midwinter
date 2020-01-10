@@ -60,7 +60,7 @@ const Midwinter = ({ logout }) => {
             </Route>
             <Route path="/">
                 <div className={styles.main}>
-                    <Sidebar setChat={setChat} channels={channels} />
+                    <Sidebar currentChat={chat?.id} setChat={setChat} channels={channels} />
                     <div className={styles.right}>
                         <Bar text={server.data?.name}>
                             <Pill onClick={() => setMode('select server')}>

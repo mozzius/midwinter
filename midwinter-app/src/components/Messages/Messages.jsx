@@ -67,6 +67,7 @@ const Messages = ({ chat, socket }) => {
             <Bar text={chat.title} />
             <ScrollableFeed forceScroll={forceScroll} className={styles.messages}>
                 {allMessages.length === 0 && noPrevMessages && <p className={styles.noMsg}>No messages in this chat</p>}
+                <div className={styles.topPadding} />
                 {allMessages.map(msg => {
                     return (
                         <Message key={msg.id} msg={msg} users={chat.users} />
