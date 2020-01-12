@@ -9,6 +9,7 @@ import Pill from '../Pill'
 import styles from './Midwinter.module.css'
 import useChat from '../../hooks/socket'
 import { useChannels } from '../../hooks/network'
+import CreateServer from '../CreateServer'
 
 const Logout = ({ logout }) => {
     // log them out
@@ -17,7 +18,7 @@ const Logout = ({ logout }) => {
     return <Redirect to="/" />
 }
 
-const Midwinter = ({ logout }) => {
+const MidwinterContent = () => {
     const [mode, setMode] = useState('chat')
     const [server, setServer] = useState(JSON.parse(window.localStorage.getItem('server')) || { selected: false, data: null })
     const [chat, setChat] = useState(JSON.parse(window.localStorage.getItem('currentChannel')) || null)
@@ -50,6 +51,38 @@ const Midwinter = ({ logout }) => {
         }
     }, [server])
 
+    switch (mode) {
+        case 'select server':
+            return <SelectServer setServer={changeServer} setMode={setMode} />
+        case 'create server':
+            return <CreateServer setServer={changeServer} />
+        default:
+            return (
+                <div className={styles.main}>
+                    <Sidebar
+                        currentChat={chat?.id}
+                        setChat={setChat}
+                        channels={channels}
+                        server={server}
+                    />
+                    <div className={styles.right}>
+                        <Bar text={server.data?.name}>
+                            <Pill onClick={() => setMode('select server')}>
+                                Change
+                            </Pill>
+                            <Pill right>
+                                <Link to="/logout">Logout</Link>
+                            </Pill>
+                        </Bar>
+                        {chat ? <Messages chat={chat} socket={socket} /> : <p>Select a channel</p>}
+                    </div>
+                </div>
+            )
+    }
+
+}
+
+const Midwinter = ({ logout }) => {
     return (
         <Switch>
             <Route path={['/login', '/signup']}>
@@ -59,27 +92,7 @@ const Midwinter = ({ logout }) => {
                 <Logout logout={logout} />
             </Route>
             <Route path="/">
-                {mode === 'select server' ? <SelectServer setServer={changeServer} /> : (
-                    <div className={styles.main}>
-                        <Sidebar
-                            currentChat={chat?.id}
-                            setChat={setChat}
-                            channels={channels}
-                            server={server}
-                        />
-                        <div className={styles.right}>
-                            <Bar text={server.data?.name}>
-                                <Pill onClick={() => setMode('select server')}>
-                                    Change
-                            </Pill>
-                                <Pill right>
-                                    <Link to="/logout">Logout</Link>
-                                </Pill>
-                            </Bar>
-                            {chat ? <Messages chat={chat} socket={socket} /> : <p>Select a channel</p>}
-                        </div>
-                    </div>
-                )}
+                <MidwinterContent />
             </Route>
         </Switch>
     )

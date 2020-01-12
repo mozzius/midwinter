@@ -37,19 +37,16 @@ const Servers = ({ setServer }) => {
     }
 }
 
-const SelectServer = ({ setServer }) => {
+const SelectServer = ({ setServer, setMode }) => {
     const [code, setCode] = useState(null)
     const [error, setError] = useState(false)
     const { type, data } = useJoinServer(code)
 
     const strData = JSON.stringify(data)
 
-    useEffect(() => console.log(code), [code])
-
     useEffect(() => {
         setError(false)
         const res = JSON.parse(strData)
-        console.log(type)
 
         if (type === 'success') {
             if (res.success) {
@@ -61,11 +58,6 @@ const SelectServer = ({ setServer }) => {
             setError(true)
         }
     }, [type, strData, setServer])
-
-
-    const onSubmit = value => {
-        setCode(value.replace(/\W/g, '').toUpperCase())
-    }
 
     return (
         <div className={styles.container}>
@@ -80,7 +72,7 @@ const SelectServer = ({ setServer }) => {
                 {error && <p>Could not find any servers with code <span className={styles.code}>{code}</span></p>}
                 <div className={styles.join}>
                     <Input
-                        onSubmit={onSubmit}
+                        onSubmit={setCode}
                         placeholder="MIDWINTER"
                         button="Join"
                         grey
@@ -90,7 +82,7 @@ const SelectServer = ({ setServer }) => {
                     <p>or</p>
                     <button
                         className={styles.button}
-                        onClick={() => alert('Sorry, not quite yet!')}
+                        onClick={() => setMode('create server')}
                     >
                         Create
                     </button>

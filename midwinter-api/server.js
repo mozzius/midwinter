@@ -227,6 +227,27 @@ app.post('/api/messages/get', jwtMW, async (req, res) => {
     }
 })
 
+app.post('/api/servers/create', jwtMW, async (req, res) => {
+    try {
+        const { id: user } = jwt.decode(req.headers.authorization.split(' ')[1])
+
+        const { name, code, invite_only } = req.body.server
+
+        const { rows } = await makeQuery(SQL`INSERT INTO servers (name, code, created_by, invite_only) VALUES (${name}, ${code}, ${user}, ${invite_only}) RETURNING *`)
+        // add user to server
+        await makeQuery(SQL`INSERT INTO server_members (server_id, user_id) VALUES (${rows[0].id}, ${user})`)
+
+        res.status(200).json({
+            success: true,
+            server: rows[0]
+        })
+    } catch (err) {
+        console.error(err)
+        res.status(500).json({ success: false, message: err })
+    }
+})
+
+
 app.get('/api/checkJWT', jwtMW, (req, res) => {
     res.status(200).json({ success: true })
 })

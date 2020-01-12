@@ -77,6 +77,10 @@ export const useJoinServer = server => {
     return useFetch('/api/servers/join', 'POST', server ? JSON.stringify({ server }) : null)
 }
 
+export const useCreateServer = server => {
+    return useFetch('/api/servers/create', 'POST', server ? JSON.stringify({ server }) : null)
+}
+
 export const useSearch = (server, search) => {
     return useFetch('/api/search', 'POST', server.selected ? JSON.stringify({ server: server.data.id, search }) : null)
 }
