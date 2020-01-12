@@ -68,7 +68,9 @@ const SelectServer = ({ setServer, setMode }) => {
                         <Link to="/logout">Logout</Link>
                     </Pill>
                 </div>
-                <p>Join a Server</p>
+                <div className={styles.title}>
+                    <p>Join a Server</p>
+                </div>
                 {error && <p>Could not find any servers with code <span className={styles.code}>{code}</span></p>}
                 <div className={styles.join}>
                     <Input
@@ -87,7 +89,9 @@ const SelectServer = ({ setServer, setMode }) => {
                         Create
                     </button>
                 </div>
-                <p>Your Servers</p>
+                <div className={styles.title}>
+                    <p>Your Servers</p>
+                </div>
                 <div className={styles.servers}>
                     <Servers setServer={setServer} />
                 </div>

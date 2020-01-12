@@ -20,6 +20,10 @@
     align-items: center;
 }
 
+.title > p {
+    font-size: 18px;
+}
+
 .join {
     display: flex;
     flex-direction: row;

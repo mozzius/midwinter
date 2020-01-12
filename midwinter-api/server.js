@@ -233,14 +233,19 @@ app.post('/api/servers/create', jwtMW, async (req, res) => {
 
         const { name, code, invite_only } = req.body.server
 
-        const { rows } = await makeQuery(SQL`INSERT INTO servers (name, code, created_by, invite_only) VALUES (${name}, ${code}, ${user}, ${invite_only}) RETURNING *`)
-        // add user to server
-        await makeQuery(SQL`INSERT INTO server_members (server_id, user_id) VALUES (${rows[0].id}, ${user})`)
+        if (name !== '' && code !== '') {
+            const { rows } = await makeQuery(SQL`INSERT INTO servers (name, code, created_by, invite_only) VALUES (${name}, ${code}, ${user}, ${invite_only}) RETURNING *`)
+            // add user to server
+            await makeQuery(SQL`INSERT INTO server_members (server_id, user_id) VALUES (${rows[0].id}, ${user})`)
 
-        res.status(200).json({
-            success: true,
-            server: rows[0]
-        })
+            res.status(200).json({
+                success: true,
+                server: rows[0]
+            })
+        } else {
+            res.status(200).json({ success: false })
+        }
+
     } catch (err) {
         console.error(err)
         res.status(500).json({ success: false, message: err })

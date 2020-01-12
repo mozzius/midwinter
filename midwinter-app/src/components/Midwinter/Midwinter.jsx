@@ -55,7 +55,7 @@ const MidwinterContent = () => {
         case 'select server':
             return <SelectServer setServer={changeServer} setMode={setMode} />
         case 'create server':
-            return <CreateServer setServer={changeServer} />
+            return <CreateServer setServer={changeServer} setMode={setMode} />
         default:
             return (
                 <div className={styles.main}>
