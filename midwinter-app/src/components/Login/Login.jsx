@@ -2,6 +2,7 @@ import React, { useState, useContext } from 'react'
 import { Redirect } from 'react-router-dom'
 
 import UserContext from '../../contexts/user'
+import { Text, Submit } from '../Input'
 import './Login.module.css'
 
 const Login = ({ setUser }) => {
@@ -34,11 +35,21 @@ const Login = ({ setUser }) => {
             login(form)
         }}>
             {error.exists && <p>Error logging in: {error.message}</p>}
-            <p>Username</p>
-            <input type="text" value={form.username} onChange={e => setForm({ ...form, username: e.target.value })} />
-            <p>Password</p>
-            <input type="password" value={form.password} onChange={e => setForm({ ...form, password: e.target.value })} />
-            <input type="submit" value="Login" />
+            <Text
+                label="Username:"
+                placeholder="Username"
+                autoFocus
+                value={form.username}
+                onChange={e => setForm({ ...form, username: e.target.value })}
+            />
+            <Text
+                label="Password:"
+                password
+                placeholder="Password"
+                value={form.password}
+                onChange={e => setForm({ ...form, password: e.target.value })}
+            />
+            <Submit text="Login" />
         </form>
     )
 }

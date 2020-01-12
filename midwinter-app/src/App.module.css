@@ -1,20 +1,7 @@
-.app {
-    display: flex;
-}
-
 h1,h2,h3,h4 {
     font-family: "Major Mono Display", monospace;
 }
 
-.content {
-    min-height: 100vh;
-    max-width: 500px;
-    width: 100%;
-    margin: 0 auto;
-    display: flex;
-    flex-direction: column;
-}
-
-.fakeLink {
-    cursor: pointer;
+.grow {
+    flex-grow: 1;
 }

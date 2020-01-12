@@ -12,6 +12,8 @@ import Signup from './components/Signup'
 import Login from './components/Login'
 import styles from './App.module.css'
 import { useCheck } from './hooks/network'
+import FormContainer from './components/FormContainer'
+import Pill from './components/Pill'
 
 const App = () => {
     const [user, setUser] = useState({ loggedIn: false })
@@ -48,28 +50,34 @@ const App = () => {
         <UserProvider value={user}>
             <Router>
                 {user.loggedIn ? <Midwinter logout={logout} /> : (
+                    <FormContainer logout={(
+                        <>
+                            <div className={styles.grow} />
+                            <Pill white>
+                                <Link to="/login">Log in</Link>
+                            </Pill>
+                            <Pill white>
+                                <Link to="/signup">Sign up</Link>
+                            </Pill>
+                        </>
+                    )}>
+                        <Switch>
+                            <Route path="/login">
+                                <Login setUser={setUser} />
+                            </Route>
+                            <Route path="/signup">
+                                <Signup setUser={setUser} />
+                            </Route>
+                            <Route path="/">
+                                <p>Welcome to Midwinter!</p>
+                                <p>Log in or Sign up to get started!</p>
+                            </Route>
+                        </Switch>
+                    </FormContainer>
 
-                    <div className={styles.app}>
-                        <div className={styles.content}>
-                            <h2>Midwinter</h2>
-                            <Link to="/login">Login</Link>
-                            <Link to="/signup">Signup</Link>
-                            <Switch>
-                                <Route path="/login">
-                                    <Login setUser={setUser} />
-                                </Route>
-                                <Route path="/signup">
-                                    <Signup setUser={setUser} />
-                                </Route>
-                                <Route path="/">
-                                    <p>Not logged in</p>
-                                </Route>
-                            </Switch>
-                        </div>
-                    </div>
-
-                )}
-            </Router>
+                )
+                }
+            </Router >
         </UserProvider >
     )
 }

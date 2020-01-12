@@ -5,6 +5,7 @@ import { useJoinServer, useServers } from '../../hooks/network'
 import Input from '../Input'
 import Pill from '../Pill'
 import styles from './SelectServer.module.css'
+import FormContainer from '../FormContainer'
 
 const Servers = ({ setServer }) => {
     const { type, data } = useServers()
@@ -60,43 +61,39 @@ const SelectServer = ({ setServer, setMode }) => {
     }, [type, strData, setServer])
 
     return (
-        <div className={styles.container}>
-            <div className={styles.inner}>
-                <div className={styles.title}>
-                    <h2>Midwinter</h2>
-                    <Pill right white>
-                        <Link to="/logout">Logout</Link>
-                    </Pill>
-                </div>
-                <div className={styles.title}>
-                    <p>Join a Server</p>
-                </div>
-                {error && <p>Could not find any servers with code <span className={styles.code}>{code}</span></p>}
-                <div className={styles.join}>
-                    <Input
-                        onSubmit={setCode}
-                        placeholder="MIDWINTER"
-                        button="Join"
-                        grey
-                        monospace
-                        uppercase
-                    />
-                    <p>or</p>
-                    <button
-                        className={styles.button}
-                        onClick={() => setMode('create server')}
-                    >
-                        Create
-                    </button>
-                </div>
-                <div className={styles.title}>
-                    <p>Your Servers</p>
-                </div>
-                <div className={styles.servers}>
-                    <Servers setServer={setServer} />
-                </div>
+        <FormContainer logout={(
+            <Pill right white>
+                <Link to="/logout">Log out</Link>
+            </Pill>
+        )}>
+            <div className={styles.title}>
+                <p>Join a Server</p>
             </div>
-        </div>
+            {error && <p>Could not find any servers with code <span className={styles.code}>{code}</span></p>}
+            <div className={styles.join}>
+                <Input
+                    onSubmit={setCode}
+                    placeholder="MIDWINTER"
+                    button="Join"
+                    grey
+                    monospace
+                    uppercase
+                />
+                <p>or</p>
+                <button
+                    className={styles.button}
+                    onClick={() => setMode('create server')}
+                >
+                    Create
+                    </button>
+            </div>
+            <div className={styles.title}>
+                <p>Your Servers</p>
+            </div>
+            <div className={styles.servers}>
+                <Servers setServer={setServer} />
+            </div>
+        </FormContainer>
     )
 }
 

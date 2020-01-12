@@ -71,7 +71,7 @@ const MidwinterContent = () => {
                                 Change
                             </Pill>
                             <Pill right>
-                                <Link to="/logout">Logout</Link>
+                                <Link to="/logout">Log out</Link>
                             </Pill>
                         </Bar>
                         {chat ? <Messages chat={chat} socket={socket} /> : <p>Select a channel</p>}

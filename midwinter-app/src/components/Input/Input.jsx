@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useRef, useEffect } from 'react'
 
 import styles from './Input.module.css'
 
@@ -35,7 +35,13 @@ const Input = ({ onSubmit, placeholder, button, grey, monospace, uppercase }) =>
     )
 }
 
-export const Text = ({ value, onChange, placeholder, label, monospace }) => {
+export const Text = ({ value, onChange, placeholder, label, monospace, password, autoFocus }) => {
+    const focusRef = useRef()
+
+    useEffect(() => {
+        if (focusRef.current) focusRef.current.focus()
+    }, [focusRef])
+
     // generate random string
     const genId = () => Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15)
 
@@ -46,7 +52,8 @@ export const Text = ({ value, onChange, placeholder, label, monospace }) => {
             <label htmlFor={id}>{label}</label>
             <div className={styles.text}>
                 <input
-                    type="text"
+                    type={password ? 'password' : 'text'}
+                    ref={autoFocus && focusRef}
                     id={id}
                     value={value}
                     onChange={onChange}

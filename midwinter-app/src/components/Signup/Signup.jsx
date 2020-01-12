@@ -3,6 +3,7 @@ import { Redirect } from 'react-router-dom'
 
 import UserContext from '../../contexts/user'
 import './Signup.module.css'
+import { Text, Submit } from '../Input'
 
 const Signup = ({ setUser }) => {
     const [error, setError] = useState({ exists: false })
@@ -34,13 +35,27 @@ const Signup = ({ setUser }) => {
             signup(form)
         }}>
             {error.exists && <p>Error signing up: {error.message}</p>}
-            <p>Username</p>
-            <input type="text" value={form.username} onChange={e => setForm({ ...form, username: e.target.value })} />
-            <p>Email</p>
-            <input type="text" value={form.email} onChange={e => setForm({ ...form, email: e.target.value })} />
-            <p>Password</p>
-            <input type="password" value={form.password} onChange={e => setForm({ ...form, password: e.target.value })} />
-            <input type="submit" value="Signup" />
+            <Text
+                label="Username:"
+                placeholder="Username"
+                autoFocus
+                value={form.username}
+                onChange={e => setForm({ ...form, username: e.target.value })}
+            />
+            <Text
+                label="Email:"
+                placeholder="Email"
+                value={form.email}
+                onChange={e => setForm({ ...form, email: e.target.value })}
+            />
+            <Text
+                label="Password:"
+                password
+                placeholder="Password"
+                value={form.password}
+                onChange={e => setForm({ ...form, password: e.target.value })}
+            />
+            <Submit text="Login" />
         </form>
     )
 }
