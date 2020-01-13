@@ -200,6 +200,93 @@ app.post('/api/channels/get', jwtMW, async (req, res) => {
     }
 })
 
+app.post('/api/channels/join', jwtMW, async (req, res) => {
+    try {
+        const { id: user } = jwt.decode(req.headers.authorization.split(' ')[1])
+
+        const { server, others } = req.body
+
+        if (others.length === 0) {
+            throw new Error('No participants')
+        } else if (others.length === 1) {
+            const { rows, rowCount } = await makeQuery(SQL`
+            SELECT * FROM (
+                SELECT 
+                    c.id AS id,
+                    c.title AS title,
+                    c.private AS private,
+                    c.read_only AS read_only,
+                    c.created_by AS created_by,
+                    c.created_on AS created_on,
+                    JSONB_AGG(JSONB_BUILD_OBJECT('id', u.id, 'username', u.username)) AS users
+                FROM channels AS c
+                INNER JOIN channel_members AS m
+                ON c.id = m.channel_id
+                INNER JOIN users AS u
+                ON u.id = m.user_id
+                WHERE c.server_id = ${server}
+                GROUP BY c.id)
+            AS sub
+            WHERE users @> ${`[{"id":"${user}"}]`}
+            AND users @> ${`[{"id":"${others[0]}"}]`}
+            AND JSONB_ARRAY_LENGTH(users) = 2
+            `)
+
+            if (rowCount > 0) {
+                res.status(200).json({
+                    success: true,
+                    result: rows[0]
+                })
+            } else {
+                const { rows: channelRows } = await makeQuery(SQL`INSERT INTO channels (server_id, created_by) VALUES (${server},${user}) RETURNING *`)
+                const channel = channelRows[0]
+                await makeQuery(SQL`INSERT INTO channel_members (user_id, channel_id) VALUES (${user}, ${channel.id})`)
+                await makeQuery(SQL`INSERT INTO channel_members (user_id, channel_id) VALUES (${others[0]}, ${channel.id})`)
+                const { rows: users } = await makeQuery(SQL`
+                SELECT u.id AS id, u.username AS id
+                FROM channel_members AS m
+                INNER JOIN users AS u
+                ON m.user_id = u.id
+                WHERE m.channel_id = ${channel.id}
+                `)
+
+                res.status(200).json({
+                    success: true,
+                    channel: {
+                        ...channel,
+                        users
+                    }
+                })
+            }
+        } else {
+            const { rows: channelRows } = await makeQuery(SQL`INSERT INTO channels (server_id, created_by) VALUES (${server},${user}) RETURNING *`)
+            const channel = channelRows[0]
+            await makeQuery(SQL`INSERT INTO channel_members (user_id, channel_id) VALUES (${user}, ${channel.id})`)
+            others.forEach(other => {
+                await makeQuery(SQL`INSERT INTO channel_members (user_id, channel_id) VALUES (${other}, ${channel.id})`)
+            })
+            const { rows: users } = await makeQuery(SQL`
+            SELECT u.id AS id, u.username AS id
+            FROM channel_members AS m
+            INNER JOIN users AS u
+            ON m.user_id = u.id
+            WHERE m.channel_id = ${channel.id}
+            `)
+
+            res.status(200).json({
+                success: true,
+                channel: {
+                    ...channel,
+                    users
+                }
+            })
+        }
+    } catch (err) {
+        console.error(err)
+        res.status(500).json({ success: false, message: err })
+    }
+})
+
 app.post('/api/messages/get', jwtMW, async (req, res) => {
     try {
         //const { id: user } = jwt.decode(req.headers.authorization.split(' ')[1])
