@@ -200,6 +200,7 @@ app.post('/api/channels/get', jwtMW, async (req, res) => {
     }
 })
 
+/*
 app.post('/api/channels/join', jwtMW, async (req, res) => {
     try {
         const { id: user } = jwt.decode(req.headers.authorization.split(' ')[1])
@@ -286,6 +287,7 @@ app.post('/api/channels/join', jwtMW, async (req, res) => {
         res.status(500).json({ success: false, message: err })
     }
 })
+*/
 
 app.post('/api/messages/get', jwtMW, async (req, res) => {
     try {
