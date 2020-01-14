@@ -262,9 +262,9 @@ app.post('/api/channels/join', jwtMW, async (req, res) => {
             const { rows: channelRows } = await makeQuery(SQL`INSERT INTO channels (server_id, created_by) VALUES (${server},${user}) RETURNING *`)
             const channel = channelRows[0]
             await makeQuery(SQL`INSERT INTO channel_members (user_id, channel_id) VALUES (${user}, ${channel.id})`)
-            others.forEach(other => {
+            for (const other of others) {
                 await makeQuery(SQL`INSERT INTO channel_members (user_id, channel_id) VALUES (${other}, ${channel.id})`)
-            })
+            }
             const { rows: users } = await makeQuery(SQL`
             SELECT u.id AS id, u.username AS id
             FROM channel_members AS m
