@@ -9,7 +9,9 @@ const socketIo = require('socket.io')
 
 const { makeQuery } = require('./db')
 const { hash } = require('./utils')
-const { secret } = require('./config')
+
+// set secret key
+const secret = process.env.SECRET_KEY
 
 // jwt expiry
 const EXPIRY = 86400
